@@ -9,6 +9,12 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $topico_id = intval($_GET['id']);
 $conn = conectarDB();
 
+// Incrementar visualizações
+$stmt = $conn->prepare("UPDATE topicos SET visualizacoes = visualizacoes + 1 WHERE id = ?");
+$stmt->bind_param("i", $topico_id);
+$stmt->execute();
+$stmt->close();
+
 // Buscar dados do tópico
 $stmt = $conn->prepare("SELECT t.*, u.nome_usuario 
                         FROM topicos t 
@@ -26,6 +32,9 @@ if ($resultado->num_rows === 0) {
 
 $topico = $resultado->fetch_assoc();
 $stmt->close();
+
+// Verificar se o usuário logado é o autor do tópico
+$eh_autor_topico = estaLogado() && obterUserID() == $topico['id_usuario'];
 
 // Buscar respostas do tópico
 $stmt = $conn->prepare("SELECT r.*, u.nome_usuario 
@@ -91,14 +100,34 @@ include '../includes/header.php';
 <!-- Tópico Principal -->
 <div class="topico-detalhe">
     <div class="topico-header">
-        <h2><?php echo limparInput($topico['titulo']); ?></h2>
+        <div class="topico-header-content">
+            <h2 id="topico-titulo-<?php echo $topico['id']; ?>"><?php echo limparInput($topico['titulo']); ?></h2>
+            <?php if ($eh_autor_topico): ?>
+                <div class="topico-actions">
+                    <button onclick="editarTopico(<?php echo $topico['id']; ?>)" class="btn-icon" title="Editar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                    <a href="/forum/topicos/excluir.php?id=<?php echo $topico['id']; ?>" class="btn-icon btn-danger" title="Excluir">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </a>
+                </div>
+            <?php endif; ?>
+        </div>
         <div class="topico-meta">
             <span class="autor">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <?php echo limparInput($topico['nome_usuario']); ?>
+                <a href="/forum/usuario/perfil.php?id=<?php echo $topico['id_usuario']; ?>">
+                    <?php echo limparInput($topico['nome_usuario']); ?>
+                </a>
             </span>
             <span class="data">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -110,9 +139,16 @@ include '../includes/header.php';
                 echo $data->format('d/m/Y H:i');
                 ?>
             </span>
+            <span class="views">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <?php echo $topico['visualizacoes']; ?> visualizações
+            </span>
         </div>
     </div>
-    <div class="topico-conteudo">
+    <div class="topico-conteudo" id="topico-conteudo-<?php echo $topico['id']; ?>">
         <?php echo nl2br(limparInput($topico['conteudo'])); ?>
     </div>
 </div>
@@ -128,18 +164,42 @@ include '../includes/header.php';
     
     <?php if ($respostas->num_rows > 0): ?>
         <div class="respostas-lista">
-            <?php while ($resposta = $respostas->fetch_assoc()): ?>
-                <div class="resposta-card">
+            <?php while ($resposta = $respostas->fetch_assoc()): 
+                $eh_autor_resposta = estaLogado() && obterUserID() == $resposta['id_usuario'];
+            ?>
+                <div class="resposta-card" id="resposta-<?php echo $resposta['id']; ?>">
                     <div class="resposta-header">
-                        <span class="autor"><?php echo limparInput($resposta['nome_usuario']); ?></span>
-                        <span class="data">
-                            <?php 
-                            $data_resp = new DateTime($resposta['data_criacao']);
-                            echo $data_resp->format('d/m/Y H:i');
-                            ?>
+                        <span class="autor">
+                            <a href="/forum/usuario/perfil.php?id=<?php echo $resposta['id_usuario']; ?>">
+                                <?php echo limparInput($resposta['nome_usuario']); ?>
+                            </a>
                         </span>
+                        <div class="resposta-header-right">
+                            <span class="data">
+                                <?php 
+                                $data_resp = new DateTime($resposta['data_criacao']);
+                                echo $data_resp->format('d/m/Y H:i');
+                                ?>
+                            </span>
+                            <?php if ($eh_autor_resposta): ?>
+                                <div class="resposta-actions">
+                                    <button onclick="editarResposta(<?php echo $resposta['id']; ?>)" class="btn-icon-small" title="Editar">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <a href="/forum/respostas/excluir.php?id=<?php echo $resposta['id']; ?>&topico=<?php echo $topico_id; ?>" class="btn-icon-small btn-danger" title="Excluir">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="resposta-conteudo">
+                    <div class="resposta-conteudo" id="resposta-conteudo-<?php echo $resposta['id']; ?>">
                         <?php echo nl2br(limparInput($resposta['conteudo'])); ?>
                     </div>
                 </div>
@@ -190,6 +250,8 @@ include '../includes/header.php';
         <a href="/forum/auth/registro.php">cadastre-se</a> para responder.
     </div>
 <?php endif; ?>
+
+<script src="/forum/assets/js/forum.js"></script>
 
 <?php
 $conn->close();
