@@ -22,15 +22,15 @@ O sistema é estruturado em módulos que exigem autenticação para garantir a i
 | :--- | :--- | :--- |
 | **Criação** | `topicos/criar.php` | Formulário e lógica para iniciar uma nova discussão. |
 | **Visualização** | `topicos/ver.php` | Exibição de um tópico específico, incluindo todas as suas respostas. |
-| **Edição/Exclusão** | `topicos/editar.php`, `topicos/excluir.php` | Gerenciamento de tópicos pelo autor. |
-| **API** | `topicos/api.php` | Ponto de acesso para interações assíncronas (ex: via JavaScript). |
+| **Edição/Exclusão** | `topicos/api.php`, `topicos/excluir.php` | Gerenciamento de tópicos pelo autor (edição via AJAX). |
+| **API** | `topicos/api.php` | Ponto de acesso para interações assíncronas, como buscar e editar tópicos. |
 
 ### 3. Respostas (Comentários)
 
 | Funcionalidade | Arquivos Relacionados | Descrição |
 | :--- | :--- | :--- |
 | **Postagem** | (Integrado em `topicos/ver.php`) | Lógica para submeter uma resposta a um tópico. |
-| **Edição/Exclusão** | `respostas/editar.php`, `respostas/excluir.php` | Gerenciamento de respostas pelo autor. |
+| **Edição/Exclusão** | `respostas/api.php`, `respostas/excluir.php` | Gerenciamento de respostas pelo autor (edição via AJAX). |
 
 ### 4. Estrutura Geral
 
@@ -39,7 +39,7 @@ O sistema é estruturado em módulos que exigem autenticação para garantir a i
 | `index.php` | Página inicial do fórum, listando os tópicos. |
 | `includes/` | Contém partes reutilizáveis do layout (`header.php`, `footer.php`). |
 | `assets/` | Contém os arquivos estáticos (`css/style.css`, `js/main.js`, `js/forum.js`). |
-| `usuario/perfil.php` | Página de perfil do usuário (a ser implementada ou visualizada). |
+| `usuario/perfil.php` | Página de perfil do usuário, exibindo suas atividades. |
 
 ## ⚙️ Configuração e Instalação
 

@@ -90,13 +90,6 @@ include '../includes/header.php';
         <div class="auth-footer">
             Não tem uma conta? <a href="/forum/auth/registro.php">Cadastre-se</a>
         </div>
-        
-        <div class="demo-info">
-            <hr>
-            <p><strong>Conta de teste:</strong></p>
-            <p>Email: admin@forum.com</p>
-            <p>Senha: 123456</p>
-        </div>
     </div>
 </div>
 

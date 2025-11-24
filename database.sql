@@ -28,6 +28,7 @@ CREATE TABLE topicos (
     id_usuario INT NOT NULL,
     titulo VARCHAR(200) NOT NULL,
     conteudo TEXT NOT NULL,
+    visualizacoes INT DEFAULT 0,
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
     INDEX idx_data_criacao (data_criacao DESC),
@@ -56,8 +57,8 @@ CREATE TABLE respostas (
 -- Inserir usuário de teste
 -- Senha: 123456
 INSERT INTO usuarios (nome_usuario, email, senha_hash) VALUES 
-('admin', 'admin@forum.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-('usuario_teste', 'teste@forum.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+('admin', 'admin@forum.com', '$2y$10$pYjuofxJe8YzqrDNGv6SO.MmEx/LRmz4dWHiZbL6Korq61An8uScu'),
+('usuario_teste', 'teste@forum.com', '$2y$10$pYjuofxJe8YzqrDNGv6SO.MmEx/LRmz4dWHiZbL6Korq61An8uScu');
 
 -- Inserir tópicos de teste
 INSERT INTO topicos (id_usuario, titulo, conteudo) VALUES

@@ -8,6 +8,7 @@
         </div>
     </footer>
 
+    <script src="/forum/assets/js/theme-switcher.js"></script>
     <script src="/forum/assets/js/main.js"></script>
 </body>
 </html>
